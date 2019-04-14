@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"google.golang.org/grpc"
-	pb "github.com/OdaDaisuke/grpc_shopping/pb"
+	"github.com/OdaDaisuke/grpc_shopping/pb/item"
 	"net/http"
 	"encoding/json"
 	"context"
@@ -11,18 +11,18 @@ import (
 )
 
 type HandlerFactory struct {
-	itemsClient pb.ItemsClient
+	itemsClient item.ItemsClient
 }
 
 func NewHandlerFactory(conn *grpc.ClientConn) *HandlerFactory {
 	return &HandlerFactory{
-		itemsClient: pb.NewItemsClient(conn),
+		itemsClient: item.NewItemsClient(conn),
 	}
 }
 
 func (h *HandlerFactory) ItemsHandler(w http.ResponseWriter, r *http.Request) {
 	page := getQueryParam(w, r, "page")
-	res, err := h.itemsClient.GetAll(context.TODO(), &pb.GetAllMessage{
+	res, err := h.itemsClient.GetAll(context.TODO(), &item.GetAllMessage{
 		Page: page,
 	})
 	if err != nil {

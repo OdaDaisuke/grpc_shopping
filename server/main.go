@@ -2,21 +2,22 @@ package main
 
 import (
 	"fmt"
-	pb "github.com/OdaDaisuke/grpc_shopping/pb"
-	"github.com/OdaDaisuke/grpc_shopping/server/service"
 	"google.golang.org/grpc"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"log"
 	"net"
+	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	"database/sql"
+	"github.com/OdaDaisuke/grpc_shopping/server/configs"
 	"github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/OdaDaisuke/grpc_shopping/server/middlewares"
-	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"database/sql"
+	"github.com/OdaDaisuke/grpc_shopping/server/service"
+	"github.com/OdaDaisuke/grpc_shopping/pb/user"
+	"github.com/OdaDaisuke/grpc_shopping/pb/item"
 )
 
 func main() {
-	listenPort, err := net.Listen("tcp", ":19003")
+	listenPort, err := net.Listen("tcp", configs.PORT)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -29,16 +30,21 @@ func main() {
 
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			grpc_auth.StreamServerInterceptor(middlewares.Auth),
 			grpc_recovery.StreamServerInterceptor(),
 		)),
 	)
-	grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-		grpc_ctxtags.UnaryServerInterceptor(),
-	))
-	itemService := &service.ItemService{}
+	serverWithAdmin := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_auth.StreamServerInterceptor(middlewares.Auth),
+		)),
+	)
 
-	pb.RegisterItemsServer(server, itemService)
-	fmt.Println("Start server on port http://localhost:19003")
+	itemService := &service.ItemService{}
+	userService := &service.UserService{}
+
+	item.RegisterItemsServer(server, itemService)
+	user.RegisterUsersServer(serverWithAdmin, userService)
+
+	fmt.Printf("Start server on port http://localhost%s\n", configs.PORT)
 	server.Serve(listenPort)
 }

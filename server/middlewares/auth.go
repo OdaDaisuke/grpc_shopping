@@ -1,7 +1,22 @@
 package middlewares
 
-import "context"
+import (
+	"context"
+	"github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"github.com/OdaDaisuke/grpc_shopping/server/configs"
+)
 
 func Auth(ctx context.Context) (context.Context, error) {
-	return nil, nil
+	token, err := grpc_auth.AuthFromMD(ctx, "bearer")
+	if err != nil {
+		return nil, err
+	}
+	if token != configs.BASIC_PASSWORD {
+		return nil, grpc.Errorf(codes.Unauthenticated, "invalid token")
+	}
+
+	newCtx := context.WithValue(ctx, "result", "ok")
+	return newCtx, nil
 }

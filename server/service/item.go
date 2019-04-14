@@ -1,7 +1,7 @@
 package service
 
 import (
-	pb "github.com/OdaDaisuke/grpc_shopping/pb"
+	"github.com/OdaDaisuke/grpc_shopping/pb/item"
 	"context"
 	"fmt"
 )
@@ -9,14 +9,14 @@ import (
 type ItemService struct {
 }
 
-func (s *ItemService) GetAll(ctx context.Context, in *pb.GetAllMessage) (*pb.GetAllResponse, error) {
-	var items []*pb.Item
-	items = append(items, &pb.Item{
+func (s *ItemService) GetAll(ctx context.Context, in *item.GetAllMessage) (*item.GetAllResponse, error) {
+	var items []*item.Item
+	items = append(items, &item.Item{
 		Name: "itemA",
 	})
 
 	fmt.Println("Page is ", in.GetPage())
-	return &pb.GetAllResponse{
+	return &item.GetAllResponse{
 		Items: items,
 	}, nil
 }
