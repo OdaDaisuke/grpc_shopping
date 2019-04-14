@@ -12,6 +12,7 @@ import (
 	"github.com/OdaDaisuke/grpc_shopping/server/middlewares"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	"database/sql"
 )
 
 func main() {
@@ -19,6 +20,12 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	db, err := sql.Open("mysql", "daisuke:password@/shopping")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
