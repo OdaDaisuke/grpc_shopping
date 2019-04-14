@@ -1,29 +1,20 @@
 package main
 
 import (
-	"google.golang.org/grpc"
-	"log"
-	"context"
-	pb "github.com/OdaDaisuke/grpc_shopping/pb"
+	"github.com/OdaDaisuke/grpc_shopping/client/handlers"
+	"net/http"
 	"fmt"
+	"github.com/OdaDaisuke/grpc_shopping/client/gateways"
 )
 
 func main() {
-	conn, err := grpc.Dial("127.0.0.1:19003", grpc.WithInsecure())
-	if err != nil {
-		log.Fatal("client connection err: ", err)
-	}
-	defer conn.Close()
+	grpcConn := gateways.InitGrpcConn()
+	defer grpcConn.Close()
 
-	client := pb.NewItemsClient(conn)
-	message := &pb.GetAllMessage{
-		Page: "0",
-	}
+	handlerFactory := handlers.NewHandlerFactory(grpcConn)
 
-	res, err := client.GetAll(context.TODO(), message)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Request response: %v", res)
+	http.HandleFunc("/items", handlerFactory.ItemsHandler)
 
+	fmt.Println("server running on http://localhost:8080")
+	http.ListenAndServe(":8080", nil)
 }
