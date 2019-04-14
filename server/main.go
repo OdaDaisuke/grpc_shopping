@@ -7,7 +7,6 @@ import (
 	"log"
 	"net"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"database/sql"
 	"github.com/OdaDaisuke/grpc_shopping/server/configs"
 	"github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/OdaDaisuke/grpc_shopping/server/middlewares"
@@ -22,12 +21,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	db, err := sql.Open("mysql", "daisuke:password@/shopping")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_recovery.StreamServerInterceptor(),
@@ -35,6 +28,7 @@ func main() {
 	)
 	serverWithAdmin := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_recovery.StreamServerInterceptor(),
 			grpc_auth.StreamServerInterceptor(middlewares.Auth),
 		)),
 	)
