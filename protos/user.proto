@@ -1,0 +1,63 @@
+syntax = "proto3";
+service Users {
+  rpc Signup (SignupMessage) returns (SignupResponse) {}
+  rpc Authenticate (AuthenticateMessage) returns (AuthenticateResponse) {}
+  rpc Delete (DeleteMessage) returns (DeleteResponse) {}
+  rpc UpdateProfile (UpdateProfileMessage) returns (UpdateProfileResponse) {}
+}
+
+/* signup */
+message SignupMessage {
+  string email = 1;
+  string password = 2;
+}
+
+message SignupResponse {
+  User user = 1;
+}
+
+/* Authenticate */
+message AuthenticateMessage {
+  string email = 1;
+  string password = 2;
+}
+message AuthenticateResponse {
+  User user = 1;
+}
+
+/* Delete */
+message DeleteMessage {
+  string userId = 1;
+}
+message DeleteResponse {
+  string status = 1;
+}
+
+/* UpdateProfile */
+message UpdateProfileMessage {
+  string id = 1;
+  string name = 2;
+  string profileImageSrc = 3;
+  string bio = 4;
+  string email = 5;
+  string password = 6;
+}
+message UpdateProfileResponse {
+  User user = 1;
+}
+
+/*------ Model ------*/
+message User {
+  string id = 1;
+  string name = 2;
+  string profileImageSrc = 3;
+  string bio = 4;
+  string email = 5;
+  string password = 6;
+  enum Status {
+    Normal = 0;
+    Ban = 1;
+    Unsubscribed = 2;
+  }
+  Status status = 7;
+}
