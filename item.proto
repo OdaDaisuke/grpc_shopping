@@ -1,0 +1,25 @@
+syntax = "proto3";
+service Items {
+  rpc GetAll (GetAllMessage) returns (GetAllResponse) {}
+}
+
+message GetAllMessage {
+  int32 page = 1;
+}
+
+message GetAllResponse {
+  repeated Item items = 1;
+}
+
+message Item {
+  string name = 1;
+  string thumbnailSrc = 2;
+  string description = 3;
+  int32 price = 4;
+  enum Stock {
+    Enough = 0;
+    Short = 1;
+    Unknown = 2;
+  }
+  Stock stock = 5;
+}
